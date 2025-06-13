@@ -10,7 +10,7 @@ void bsort(int** graph, int num_edges) {
     for (int i = 0; i < num_edges; ++i) {
         for (int j = 0; j < num_edges - i - 1; ++j) {
             if (graph[j][2] > graph[j + 1][2]) {
-                // Swap từng phần tử
+                // Swap each subarray
                 for (int k = 0; k < 3; ++k) {
                     int tmp = graph[j][k];
                     graph[j][k] = graph[j + 1][k];
