@@ -1,5 +1,11 @@
 #include "tsm.h"
 
+int bestPath[100];
+int currentPath[100]; 
+bool visited[100];
+int minWeight = INT_MAX;
+int bound = 0;
+
 void bsort(int** graph, int num_edges) {
     for (int i = 0; i < num_edges; ++i) {
         for (int j = 0; j < num_edges - i - 1; ++j) {
@@ -13,6 +19,23 @@ void bsort(int** graph, int num_edges) {
             }
         }
     }
+}
+
+int** CopyGraph(int graph[][3], int num_edges) {
+    int** newGraph = new int*[num_edges];
+    for (int i = 0; i < num_edges; ++i) {
+        newGraph[i] = new int[3];
+        for (int j = 0; j < 3; ++j) {
+            newGraph[i][j] = graph[i][j];
+        }
+    }
+    return newGraph;
+}
+void destroy(int** graph, int num_edges) {
+    for (int i = 0; i < num_edges; ++i) {
+        delete[] graph[i];
+    }
+    delete[] graph;
 }
 
 vector<vector<int>> getAdjacencyMatrix(int graph[][3], int num_edges) {
@@ -34,80 +57,6 @@ vector<vector<int>> getAdjacencyMatrix(int graph[][3], int num_edges) {
     return matrix;
 }
 
-bool isValid(vector<char>& list, vector<vector<int>>& adjacencyMatrix,string& path, char vertex, int pos) {
-    int size = path.size();
-
-    // Neu ko ton tai duong di tu dinh cuoi cua path den dinh vertex
-
-    if (!adjacencyMatrix[findIndexInVector(list, path[size - 1])][findIndexInVector(list,vertex)]) {
-        return false;
-    }
-
-    // Neu chua du do dai
-    if (pos < list.size()) {
-        for (int i = 0; i < size; ++i) {
-            if (path[i] == vertex) {
-                return false;
-            }
-        }
-        if (adjacencyMatrix[findIndexInVector(list, path[size - 1])][findIndexInVector(list,vertex)]) {
-            return true;
-        }
-    }
-
-    // neu da du do dai
-    if (vertex != path[0]) {
-        return false;
-    }
-    return true;
-}
-
-void createPath(vector<string>& listOfPath, vector<char>&list, vector<vector<int>>& adjacencyMatrix) {
-    int numOfVertices = list.size();
-
-    // Duyet tung chuoi con trong listOfPath
-    for (int i = 0; i < listOfPath.size(); ++i) {
-        string tmp = listOfPath[i];
-        // Tao chuoi con theo tung bac, lenh for de duyet tat ca duong di co the o bac thu tmp.size()
-        if (tmp.size() < numOfVertices + 1) {
-            for (int j = 0; j < numOfVertices; ++j) {
-                // Nếu tồn tại đường đi từ đỉnh cuối trên đg tmp tới đỉnh j
-                if (adjacencyMatrix[findIndexInVector(list, tmp[tmp.size() - 1])][j]) {
-                    // Kiem tra dinh j co hop le hay khong cho vi tri cuoi cua tmp
-                    if (isValid(list,adjacencyMatrix, tmp, list[j], tmp.size())) {
-                        listOfPath.push_back(tmp + list[j]);
-                    }
-                        
-                }
-            }
-        }
-    }
-}
-
-int bestPath[100];
-int currentPath[100]; 
-bool visited[100];
-
-int minWeight = INT_MAX;
-int bound = 0;
-
-
-int** CopyGraph(int graph[][3], int num_edges) {
-    int** newGraph = new int*[num_edges];
-    for (int i = 0; i < num_edges; ++i) {
-        newGraph[i] = new int[3];
-        for (int j = 0; j < 3; ++j) {
-            newGraph[i][j] = graph[i][j];
-        }
-    }
-    return newGraph;
-}
-void destroy(int** graph, int num_edges) {
-    for (int i = 0; i < num_edges; ++i) {
-        delete[] graph[i];
-    }
-    delete[] graph;
-}
 void calculateBound(vector<char>&list,int sumWeight, int numEdgePassed, int** graph, int num_edges, int numVertices) {
     bool tmp[100];
     for (int i = 0; i < numVertices; ++i) {
@@ -162,7 +111,6 @@ void dfs(vector<char>& list, int sumWeight, int numEdgePassed, int numVertices, 
     }
 }
 
-
 string Traveling(int graph[][3], int num_edges, char start) { 
     // Sap xep lai graph theo chieu tang dan cua trong so moi canh
     minWeight = INT_MAX;
@@ -197,18 +145,3 @@ string Traveling(int graph[][3], int num_edges, char start) {
     if (minWeight < INT_MAX) return result;
     else return "";
 }
-
-
-/*
-    bool visited[] có kích thước n đỉnh để xét đã đi qua chưa
-    int bound: cận dưới để cắt nhánh
-    int minPath để xét đường đi nhỏ nhất
-
-    HÀM
-        - Tính bound dựa trên các cạnh có thể đi qua bằng việc cộng 
-            n - i cạnh với i là số cạnh đã dùng
-        - sort Graph tăng dần theo trọng số cạnh
-        - backtrack để xét từng cây con
-        - tạo 
-
-*/
