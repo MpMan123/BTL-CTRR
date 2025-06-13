@@ -42,14 +42,13 @@ vector<vector<int>> getAdjacencyMatrix(int graph[][3], int num_edges) {
     int num_of_vertices = countVertices(graph, num_edges);
     vector<vector<int>> matrix(num_of_vertices, vector<int>(num_of_vertices, 0));
     
-    // Danh sach cac dinh
     vector<char> list_of_vertices = getVectorOfVertices(graph, num_edges);
-    // Ma tran lien ke
+
     for (int i = 0; i < num_edges; ++i) {
         int u = findIndexInVector(list_of_vertices, graph[i][0]);
         int v = findIndexInVector(list_of_vertices, graph[i][1]);
         if (u >= 0 && v >= 0) {
-            // Đam bao neu la đa đo thi, thi chi lay canh co trong so nho nhat
+            // Ensure that if the graph is a multigraph, only the edge with the smallest weight is kept
             if (matrix[u][v] == 0 || matrix[u][v] > graph[i][2])
                 matrix[u][v] = graph[i][2];
         }
@@ -64,11 +63,9 @@ void calculateBound(vector<char>&list,int sumWeight, int numEdgePassed, int** gr
     }
     for (int i = 0; i < num_edges; ++i) {
         int v = findIndexInVector(list, graph[i][1]);
-        // Neu chua gap canh do thi tinh bound;
+        // Estimate the lower bound using the remaining unvisited edges
         if (!tmp[v]) {
-            // cout << "sumWeight hien tai la: " << sumWeight << endl;
             tmp[v] = true;
-            // cout << " lay tu canh " << (char)graph[i][0] << (char)graph[i][1] << endl;
             sumWeight += graph[i][2];
             ++numEdgePassed; 
         }
@@ -80,11 +77,11 @@ void calculateBound(vector<char>&list,int sumWeight, int numEdgePassed, int** gr
 }
 
 void dfs(vector<char>& list, int sumWeight, int numEdgePassed, int numVertices, int startIndex, vector<vector<int>>& matrix, int** graph, int num_edges) {
-    // Neu da di den canh thu n thi xet co noi vao dinh dau hay khong
+    // Verify the existence of a circuit
     if (numEdgePassed == numVertices) {
         if (matrix[startIndex][currentPath[0]]) {
             sumWeight += matrix[startIndex][currentPath[0]];
-        // Neu chu trinh nho hon thi cap nhat
+            // Update minWeight when a better result is found
             if (sumWeight < minWeight) {
                 minWeight = sumWeight;
                 for (int i = 0; i < numVertices; ++i) {
@@ -102,7 +99,6 @@ void dfs(vector<char>& list, int sumWeight, int numEdgePassed, int numVertices, 
                 visited[v] = true;
                 if (bound < minWeight) {
                     currentPath[numEdgePassed] = v;
-                    
                     dfs(list, sumWeight + matrix[startIndex][v], numEdgePassed + 1, numVertices, v, matrix, graph, num_edges);
                 }
                 visited[v] = false;
@@ -112,24 +108,22 @@ void dfs(vector<char>& list, int sumWeight, int numEdgePassed, int numVertices, 
 }
 
 string Traveling(int graph[][3], int num_edges, char start) { 
-    // Sap xep lai graph theo chieu tang dan cua trong so moi canh
     minWeight = INT_MAX;
     int** tmp_graph = CopyGraph(graph, num_edges);
     bsort(tmp_graph, num_edges);
-    // cout << start << " _----\n";
+
     vector<char> listVertices = getVectorOfVertices(graph, num_edges);
     int numVertices = listVertices.size();
     vector<vector<int>> matrix = getAdjacencyMatrix(graph, num_edges);
-    // Xet moi duong di bac 1 tu dinh start
+
     int startIndex = findIndexInVector(listVertices, start);
     currentPath[0] = startIndex;
     for (int i = 0; i < numVertices; ++i) {
-        // Duyệt từng nhánh lớn
-        // cout << "Xet nhanh: " << listVertices[i] << endl;
+        // Traverse each major branch
         visited[startIndex] = true;
         dfs(listVertices, matrix[startIndex][i], 1, numVertices, i ,matrix, tmp_graph, num_edges);
     }   
-    // cout << minWeight << endl;
+
     string result = "";
     for (int i = 0; i <= numVertices; ++i) {
         result += listVertices[bestPath[i]];
@@ -137,10 +131,11 @@ string Traveling(int graph[][3], int num_edges, char start) {
             result += ' ';
         }
     }
-    // Chinh lai visited
+    // Reset the value of visited array
     for (int i = 0; i < numVertices; ++i) {
         visited[i] = false;
     }
+    // Free the memory allocated for tmp_graph
     destroy(tmp_graph, num_edges);
     if (minWeight < INT_MAX) return result;
     else return "";
