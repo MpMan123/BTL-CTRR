@@ -1,7 +1,20 @@
 #include "bellman.h"
 
+void sort(vector<char>& vectorOfVertices) {
+    int size = vectorOfVertices.size();
+    for (int i = 0; i < size; ++i) {
+        for (int j = 0; j < size - i - 1; ++j) {
+            if (vectorOfVertices[j] > vectorOfVertices[j + 1]) {
+                char tmp = vectorOfVertices[j];
+                vectorOfVertices[j] = vectorOfVertices[j + 1];
+                vectorOfVertices[j + 1] = tmp;
+            }
+        }
+    }
+}
+
 int countVertices(int graph[][3], int num_edges) {
-    int exist[256] = {0}; // num_edges + 1 vì có trường hợp đồ thị là đường thẳng
+    int exist[256] = {0};
     for (int i = 0; i < num_edges; ++i) {
         if (exist[graph[i][0]] == 0) {
             ++exist[graph[i][0]];
@@ -17,34 +30,16 @@ int countVertices(int graph[][3], int num_edges) {
     return sum;
 }
 
-// char* getListVertices(int graph[][3], int num_edges) {
-//     int num_of_vertices = countVertices(graph, num_edges);
-//     char* list = new char[num_of_vertices];
+int findIndexInVector(vector<char> list, char vertex) {
+    int size = list.size();
+    for (int i = 0; i < size; ++i) {
+        if (vertex == list[i]) {
+            return i;
+        }
+    }
+    return -1;
+}
 
-//     int index = 0;
-//     int exist[256] = {0};
-//     for (int i = 0; i < num_edges; ++i) {
-//         // Nếu đỉnh đó chưa được tính thì thêm vào list
-//         if (exist[graph[i][0]] == 0) {
-//             ++exist[graph[i][0]];
-//             list[index++] = (char)graph[i][0];
-//         }
-//         if (exist[graph[i][1]] == 0) {
-//             ++exist[graph[i][1]];
-//             list[index++] = (char)graph[i][1];
-//         }
-//     }
-//     return list;
-// }
-
-// int findIndex(char list[], char vertex, int num_of_vertices) {
-//     for (int i = 0; i < num_of_vertices; ++i) {
-//         if (vertex == list[i]) {
-//             return i;
-//         }
-//     }
-//     return -1;
-// }
 int* CopyArray(int a[], int num_of_vertices) {
     int* result = new int[num_of_vertices];
     for (int i = 0; i < num_of_vertices; ++i) {
@@ -59,16 +54,11 @@ void BF(int graph[][3], int num_edges, char start, int value_array[], int previo
     
     int start_index = findIndexInVector(list_of_vertices, start);
 
-    value_array[start_index] = 0; // Khoảng cách từ điểm đầu đến chính nó = 0
-    // for (int i = 0; i < num_of_vertices; ++i) {
-    //     cout << value_array[i] << " ";
-    // }
-    // cout << endl;
-    // for (int i = 0; i < num_of_vertices; ++i) {
-    //     cout << previous_array[i] << " ";
-    // }
-    // cout << endl;
+    // Initialize the weight of the starting node to 0
+    value_array[start_index] = 0; 
     int u, v;
+
+    // Get the copy of valueArray and previousArray of the step before
     int* tmp_value = CopyArray(value_array,num_of_vertices);
     int* tmp_pre = CopyArray(previous_array, num_of_vertices);
 
@@ -77,10 +67,6 @@ void BF(int graph[][3], int num_edges, char start, int value_array[], int previo
         v = findIndexInVector(list_of_vertices, (char)graph[i][1]);
         if (tmp_value[u] != -1) {
             if((value_array[u] + graph[i][2] < value_array[v]) || value_array[v] == -1) {
-                //  cout << "i = " << i << endl;
-                // cout << value_array[graph[i][0]] << "+" << graph[i][2] << " ? " << value_array[graph[i][1]] << endl;
-                // cout << (char)graph[i][0] << " " << (char)graph[i][1] << endl;
-                
                 value_array[v] = value_array[u] + graph[i][2];
                 previous_array[v] = graph[i][0];
             }
@@ -89,18 +75,7 @@ void BF(int graph[][3], int num_edges, char start, int value_array[], int previo
     delete[] tmp_value;
     delete[] tmp_pre;
 }
-void sort(vector<char>& vectorOfVertices) {
-    int size = vectorOfVertices.size();
-    for (int i = 0; i < size; ++i) {
-        for (int j = 0; j < size - i - 1; ++j) {
-            if (vectorOfVertices[j] > vectorOfVertices[j + 1]) {
-                char tmp = vectorOfVertices[j];
-                vectorOfVertices[j] = vectorOfVertices[j + 1];
-                vectorOfVertices[j + 1] = tmp;
-            }
-        }
-    }
-}
+
 vector<char> getVectorOfVertices(int graph[][3], int num_edges) {
     int num_of_vertices = countVertices(graph, num_edges);
     vector<char> list;
@@ -108,15 +83,12 @@ vector<char> getVectorOfVertices(int graph[][3], int num_edges) {
     int index = 0;
     int exist[256] = {0};
     for (int i = 0; i < num_edges; ++i) {
-        // Nếu đỉnh đó chưa được tính thì thêm vào list
         if (exist[graph[i][0]] == 0) {
             ++exist[graph[i][0]];
-            // list[index++] = (char)graph[i][0];
             list.push_back((char)graph[i][0]);
         }
         if (exist[graph[i][1]] == 0) {
             ++exist[graph[i][1]];
-            // list[index++] = (char)graph[i][1];
             list.push_back((char)graph[i][1]);
         }
     }
@@ -128,6 +100,7 @@ string BF_Path(int graph[][3], int num_edges, char start, char goal) {
     bool in = false;
     bool out = false;
     
+    // Check the existence of path from any vertices to goal and path from start to any other vertices
     for (int i = 0; i < num_edges; ++i) {
         if (start == (char)graph[i][0]) {
             out = true;
@@ -139,9 +112,11 @@ string BF_Path(int graph[][3], int num_edges, char start, char goal) {
     if (in == false || out == false) {
         return "";
     }
+    
     int num_of_vertices = countVertices(graph, num_edges);
     int* value_array = new int[num_of_vertices];
     int* previous_array = new int[num_of_vertices];
+
     for (int i = 0; i < num_of_vertices; ++i) {
         value_array[i] = -1;
         previous_array[i] = -1;
@@ -153,18 +128,6 @@ string BF_Path(int graph[][3], int num_edges, char start, char goal) {
 
 
     vector<char> list = getVectorOfVertices(graph, num_edges);
-    // for (int i = 0; i < num_of_vertices; ++i) {
-    //     cout << list[i] << " ";
-    // }
-    // cout << endl;
-    // for (int i = 0; i < num_of_vertices; ++i) {
-    //     cout << value_array[i] << " ";
-    // }
-    // cout << endl;
-    // for (int i = 0; i < num_of_vertices; ++i) {
-    //     cout << (char)previous_array[i] << " ";
-    // }
-    // cout << endl;
     string result = "";
     char tmp = goal;
     while (tmp != -1) {
@@ -185,32 +148,7 @@ string BF_Path(int graph[][3], int num_edges, char start, char goal) {
     return result;
 }
 
-int shortestValue(int graph[][3], int num_edges, vector<char>&list, char start, char goal) {
-    int num_of_vertices = countVertices(graph, num_edges);
-    int* value_array = new int [num_of_vertices];
-    for (int i = 0; i < num_of_vertices; ++i) {
-        value_array[i] = -1;
-    }
-    int* previous_array = new int[num_of_vertices];
-    for (int i = 0; i < num_of_vertices; ++i) {
-        BF(graph, num_edges, start, value_array, previous_array);
-    }
-    int v = findIndexInVector(list, goal);
-    int result = value_array[v];
-    delete[] previous_array;
-    delete [] value_array;
-    return result;
-}
 
-int findIndexInVector(vector<char> list, char vertex) {
-    int size = list.size();
-    for (int i = 0; i < size; ++i) {
-        if (vertex == list[i]) {
-            return i;
-        }
-    }
-    return -1;
-}
 
 
 
