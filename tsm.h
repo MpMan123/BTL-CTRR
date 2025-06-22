@@ -1,24 +1,23 @@
 #ifndef TSM_H
 #define TSM_H
+
 #include <iostream>
-#include "bellman.h"
+#include <vector>
+#include <algorithm>
+#include <random>
+using namespace std;
 
-extern int bestPath[100];
-extern int currentPath[100]; 
-extern bool visited[100];
-extern int minWeight;
-extern int bound;
+// Applying Held-Karp algorithm to find solution with more-than-25-vertex problem
+string HKSolve(vector<vector<int>>& cost, int charToIndex[256], vector<char>& vertices, char start);
 
-// Sort the input graph in ascending order by graph[i][2]
-void bsort(int** graph, int num_edges);
-// Create a copy of input graph
-int** CopyGraph(int graph[][3], int num_edges);
-void destroy(int **graph, int num_edges);
-// Traverse the graph using Depth-First Search
-void dfs(vector<char>&list, int sumWeight, int numEdgePassed, int numVertices, int startIndex, vector<vector<int>>& matrix, int** graph, int num_edges);
-// Calculate bound of each branch to obtain the mininum expected circuit weight
-void calculateBound(vector<char>&list,int sumWeight, int numEdgePassed, int** graph, int num_edges, int numVertices);
-// Print the tour that solves the Traveling Salesman Problem
+// Compute the total distance of the current tour
+int calculatePath(vector<int>& currentPath, vector<vector<int>>& cost);
+// Generate a neighboring solution by performing a 2-opt move
+vector<int> getNeighbor(const vector<int>& currentPath, mt19937& rng);
+// Applying Simulated Annealing algorithm
+string SASolve(vector<vector<int>>& cost,int charToIndex[256], vector<char>& vertices, char start);
+
+// Main solution using two algorithms above
 string Traveling(int graph[][3], int num_edges, char start);
 
 #endif

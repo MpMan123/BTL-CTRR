@@ -1,124 +1,201 @@
 #include "tsm.h"
+#define INF 1000000000
 
-int bestPath[100];
-int currentPath[100]; 
-bool visited[100];
-int minWeight = INT_MAX;
-int bound = 0;
+// Applying Held-Karp algorithm to find solution with more-than-25-vertex problem
+string HKSolve(vector<vector<int>>& cost, int charToIndex[256], vector<char>& vertices, char start) {
+    int numVertices = vertices.size();
+    int states = 1 << numVertices;
 
-void bsort(int** graph, int num_edges) {
-    for (int i = 0; i < num_edges; ++i) {
-        for (int j = 0; j < num_edges - i - 1; ++j) {
-            if (graph[j][2] > graph[j + 1][2]) {
-                // Swap each subarray
-                for (int k = 0; k < 3; ++k) {
-                    int tmp = graph[j][k];
-                    graph[j][k] = graph[j + 1][k];
-                    graph[j + 1][k] = tmp;
+    // Create spaces for "1 << numVertices" states
+    vector<vector<int>> dp(states, vector<int>(numVertices, INF));
+    vector<vector<int>> parent(states, vector<int>(numVertices, -1));
+
+    int startIndex = charToIndex[start];
+    
+    dp[1 << startIndex][startIndex] = 0;
+
+    for (int mask = 0; mask < states; ++mask) {
+        for (int u = 0; u < numVertices; ++u) {
+            // Inspect u's existence int state "mask"
+            if (!(mask & (1 << u))) continue;
+
+            if (dp[mask][u] >= INF) continue;
+            for (int v = 0; v < numVertices; ++v) {
+                if (mask & (1 << v)) continue;
+                if (cost[u][v] == -1) continue; 
+
+                int nextMask = mask | (1 << v);
+                int dis = dp[mask][u] + cost[u][v];
+
+                if (dis < dp[nextMask][v]) {
+                    dp[nextMask][v] = dis;
+                    parent[nextMask][v] = u;
                 }
             }
         }
     }
-}
 
-int** CopyGraph(int graph[][3], int num_edges) {
-    int** newGraph = new int*[num_edges];
-    for (int i = 0; i < num_edges; ++i) {
-        newGraph[i] = new int[3];
-        for (int j = 0; j < 3; ++j) {
-            newGraph[i][j] = graph[i][j];
+    int minWeight = INF, last = -1;
+    int finalMask = states - 1;
+
+    for (int u = 0; u < numVertices; ++u) {
+        if(u == startIndex || cost[u][startIndex] == -1) continue;
+        int curWeight = dp[finalMask][u] + cost[u][startIndex];
+        if (curWeight < minWeight) {
+            minWeight = curWeight;
+            last = u;
         }
     }
-    return newGraph;
-}
-void destroy(int** graph, int num_edges) {
-    for (int i = 0; i < num_edges; ++i) {
-        delete[] graph[i];
-    }
-    delete[] graph;
-}
 
-void calculateBound(vector<char>&list,int sumWeight, int numEdgePassed, int** graph, int num_edges, int numVertices) {
-    bool tmp[100];
-    for (int i = 0; i < numVertices; ++i) {
-        tmp[i] = visited[i];
-    }
-    for (int i = 0; i < num_edges; ++i) {
-        int v = findIndexInVector(list, graph[i][1]);
-        // Estimate the lower bound using the remaining unvisited edges
-        if (!tmp[v]) {
-            tmp[v] = true;
-            sumWeight += graph[i][2];
-            ++numEdgePassed; 
-        }
-        if (numEdgePassed == numVertices) {
-            bound = sumWeight;
-            return;
-        }
-    }
-}
-
-void dfs(vector<char>& list, int sumWeight, int numEdgePassed, int numVertices, int startIndex, vector<vector<int>>& matrix, int** graph, int num_edges) {
-    // Verify the existence of a circuit
-    if (numEdgePassed == numVertices) {
-        if (matrix[startIndex][currentPath[0]]) {
-            sumWeight += matrix[startIndex][currentPath[0]];
-            // Update minWeight when a better result is found
-            if (sumWeight < minWeight) {
-                minWeight = sumWeight;
-                for (int i = 0; i < numVertices; ++i) {
-                    bestPath[i] = currentPath[i];
-                }
-            }
-        }
-        return;
+    if (minWeight >= INF) {
+        return "";
     }
 
-    for (int v = 0; v < numVertices; ++v) {
-        if (matrix[startIndex][v]) {
-            if (!visited[v]) {
-                calculateBound(list, sumWeight, numEdgePassed, graph, num_edges, numVertices);
-                visited[v] = true;
-                if (bound < minWeight) {
-                    currentPath[numEdgePassed] = v;
-                    dfs(list, sumWeight + matrix[startIndex][v], numEdgePassed + 1, numVertices, v, matrix, graph, num_edges);
-                }
-                visited[v] = false;
-            }
-        }
+    vector<int> path;
+    int mask = finalMask, u = last;
+    while (u != -1) {
+        path.push_back(u);
+        int previous = parent[mask][u];
+        mask ^= (1 << u);
+        u = previous;
     }
-}
-
-string Traveling(int graph[][3], int num_edges, char start) { 
-    minWeight = INT_MAX;
-    int** tmp_graph = CopyGraph(graph, num_edges);
-    bsort(tmp_graph, num_edges);
-
-    vector<char> listVertices = getVectorOfVertices(graph, num_edges);
-    int numVertices = listVertices.size();
-    vector<vector<int>> matrix = getAdjacencyMatrix(graph, num_edges);
-
-    int startIndex = findIndexInVector(listVertices, start);
-    currentPath[0] = startIndex;
-    for (int i = 0; i < numVertices; ++i) {
-        // Traverse each major branch
-        visited[startIndex] = true;
-        dfs(listVertices, matrix[startIndex][i], 1, numVertices, i ,matrix, tmp_graph, num_edges);
-    }   
-
+    reverse(path.begin(), path.end());
+    path.push_back(charToIndex[start]);
+    
     string result = "";
-    for (int i = 0; i <= numVertices; ++i) {
-        result += listVertices[bestPath[i]];
-        if (i < numVertices ) {
+    for (int i = 0; i < path.size(); ++i) {
+        result += vertices[path[i]];
+        if (i < path.size() - 1) {
             result += ' ';
         }
     }
-    // Reset the value of visited array
-    for (int i = 0; i < numVertices; ++i) {
-        visited[i] = false;
-    }
-    // Free the memory allocated for tmp_graph
-    destroy(tmp_graph, num_edges);
-    if (minWeight < INT_MAX) return result;
-    else return "";
+    return result;
 }
+
+// Compute the total distance of the current tour
+int calculatePath(vector<int>& currentPath, vector<vector<int>>& cost) {
+    int numVertices = cost.size();
+    int result = 0;
+    for (int i = 0; i < numVertices; ++i) {
+        if (cost[currentPath[i]][currentPath[i + 1]] > 0) {
+            result += cost[currentPath[i]][currentPath[i + 1]];
+        }
+        else return INF;
+    }
+    return result;
+}
+
+// Generate a neighboring solution by performing a 2-opt move
+vector<int> getNeighbor(const vector<int>& currentPath, mt19937& rng) {
+    vector<int> neighbor = currentPath;
+    int numVertices = neighbor.size() - 1;
+
+    // Swap 2 vertex randomly except the first and the last vertex
+    uniform_int_distribution<int> dist(1, numVertices - 1);
+    int i = dist(rng);
+    int j = dist(rng);
+    while (i == j) {
+        j = dist(rng);
+    }
+    swap(neighbor[i], neighbor[j]);
+    return neighbor;
+}
+
+// Applying Simulated Annealing algorithm
+string SASolve(vector<vector<int>>& cost,int charToIndex[256], vector<char>& vertices, char start) {
+    // Set up the first tour
+    vector<int> currentPath;
+    int startIndex = charToIndex[start];
+    for (int i = 0; i < cost.size(); ++i) {
+        if (i != startIndex) currentPath.push_back(i);
+    }
+
+    // Shuffled cities to form a randomized initial tour
+    random_device rd;
+    mt19937 rng(rd());
+    shuffle(currentPath.begin(), currentPath.end(),rng);
+    currentPath.insert(currentPath.begin(), startIndex);
+    currentPath.push_back(startIndex);
+
+    int bestCost = calculatePath(currentPath, cost);
+    vector<int> bestPath = currentPath;
+
+    // Initialize parameters
+    double T = 1000;
+    double T_min = 0.01;
+    double alpha = 0.995;
+    int iteration = 1000;
+
+    uniform_real_distribution<double> prob(0.0, 1.0);
+
+    while (T > T_min) {
+        for (int i = 0; i < iteration; ++i) {
+            vector<int> neighbor = getNeighbor(currentPath, rng);
+            int currentCost = calculatePath(currentPath, cost);
+            int neighborCost = calculatePath(neighbor, cost);
+            int delta = neighborCost - currentCost;
+
+            if (delta < 0 || prob(rng) < exp(-delta / T)) {
+                currentPath = neighbor;
+                if (neighborCost < bestCost) {
+                    bestCost = neighborCost;
+                    bestPath = neighbor;
+                }
+            }
+        }
+        T *= alpha;
+    }
+
+    string result = "";
+    for (int i = 0; i < bestPath.size(); ++i) {
+        result += vertices[bestPath[i]];
+        if (i < bestPath.size() - 1) {
+            result += ' ';
+        }
+    }
+
+    if (bestCost < INF) return result;
+    return "";
+}
+
+// Main solution using two algorithms above
+string Traveling(int graph[][3], int num_edges, char start) {
+    int numVertices = 0;
+    vector<char> vertices;
+    for (int i = 0; i < num_edges; ++i) {
+        if (find(vertices.begin(), vertices.end(), static_cast<char>(graph[i][0])) == vertices.end()) {
+            vertices.push_back(graph[i][0]);
+            ++numVertices;
+        }
+        if (find(vertices.begin(), vertices.end(), static_cast<char>(graph[i][1])) == vertices.end()) {
+            vertices.push_back(graph[i][1]);
+            ++ numVertices;
+        }
+    }
+    sort(vertices.begin(), vertices.end());
+    int charToIndex[256];
+    for (int i = 0; i < 256; ++i) {
+        charToIndex[i] = -1;
+    }
+    for (int i = 0; i < numVertices; ++i) {
+        charToIndex[vertices[i]] = i;
+    }
+    
+    // Initialize a 2D matrix to perform distances between two different cities
+    vector<vector<int>> cost(numVertices, vector<int>(numVertices, -1));
+    for (int i = 0; i < num_edges; ++i) {
+        int u = charToIndex[static_cast<char>(graph[i][0])];
+        int v = charToIndex[static_cast<char>(graph[i][1])];
+        if (cost[u][v] == -1 || cost[u][v] > graph[i][2])
+            cost[u][v] = graph[i][2];
+    }
+    for (int i = 0; i < numVertices; ++i) {
+        cost[i][i] = 0;
+    }
+
+    if (numVertices >= 25) {
+        return SASolve(cost, charToIndex, vertices, start);
+    }
+    return HKSolve(cost, charToIndex, vertices, start);
+}
+    
