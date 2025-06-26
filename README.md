@@ -1,5 +1,6 @@
-# BTL CTRR
+# DISCRETE STRUCTURE - ASSIGNMENT ON TRAVELING SALESMAN PROBLEM AND APPLYING BELLMAN-FORD
 
-## How to clone using bash-git
-- Open bash git in your folder where you want to clone the file
-- 
+This repository is part of my study on 2 algorithms to solve the Traveling Salesman Problem and generate the 'DiscreteStructure_ReportOnTSM.pdf'
+- Held-Karp Algorithm
+- Simulated Annealing
+
