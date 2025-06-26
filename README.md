@@ -2,7 +2,7 @@
 >**Coure Project - Faculty of Computer Science - HCMUT**
 
 ---
-## Introduction
+## ✍️ Introduction
 
 | Field | Information |
 |---------|---------------|
@@ -10,7 +10,7 @@
 |**Email**| mhp230306@gmail.com|
 
 ---
-## Overview
+##📚  Overview
 This repository is part of my study on 3 algorithms to solve the Traveling Salesman Problem, Finding The Shortest Path and generate the `DiscreteStructure_ReportOnTSM.pdf`
 
 Algorithms implemented:
@@ -21,7 +21,7 @@ Algorithms implemented:
 |2| Simulated Anneadling | Heuristic approach to get the near-optimal solution for larger TSP|
 |3| Bellman Ford| Shortest Path between two different vertices|
 
-## Project Layout
+## 📂 Project Layout
 |#| File | Description |
 |-|----|-------------|
 |1|`main.cpp`| Contains the `main` function which process the input file `.txt` prints result|
@@ -29,7 +29,7 @@ Algorithms implemented:
 |3|`tsm.cpp`| Implementation of Held–Karp & Simulated Annealing|
 
 ## ⚙️ Build and run 
-### Windows (PowerShell / Cmd)
+###  Windows (PowerShell / Cmd)
    ``` Powershell
 cls; g++ -o main main.cpp tsm.cpp bellman.cpp -I . -std=c++11;.\main
 ```
