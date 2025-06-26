@@ -61,7 +61,6 @@ string HKSolve(vector<vector<int>>& cost, int charToIndex[256], vector<char>& ve
     }
     reverse(path.begin(), path.end());
     path.push_back(charToIndex[start]);
-    
     string result = "";
     for (int i = 0; i < path.size(); ++i) {
         result += vertices[path[i]];
@@ -193,7 +192,7 @@ string Traveling(int graph[][3], int num_edges, char start) {
         cost[i][i] = 0;
     }
 
-    if (numVertices >= 25) {
+    if (numVertices >= 20) {
         return SASolve(cost, charToIndex, vertices, start);
     }
     return HKSolve(cost, charToIndex, vertices, start);

@@ -16,194 +16,40 @@ void printedge(int[]);
 //Function to generate a random edges list
 int edgeListGen(int[][3],int,int,int);
 
-
-
-//main Function
-// int main()
-// {
-//     //Function name for checking:
-//     enum Func_check {BF_func,BF_Path_func,Traveling_func,none};
-    
-//     bool randGen=0;
-//     int edgeList[MAX][3] ;
-//     int numEdges=9;
-//     int numVertices=46;
-//     int initlimit=15;
-//     if(!randGen){
-//         //Read from file
-//         ifstream fin("EdgeList.txt");
-//         for(int i=0;i<numEdges;i++){
-//             fin>>edgeList[i][0]>>edgeList[i][1]>>edgeList[i][2];
-//         }
-//         fin.close();
-//     }
-//     else{
-//         //Generate a random edgelist:
-//         if(edgeListGen(edgeList,numEdges,numVertices,initlimit)<0) return -1;
-//     }
-//     //Print the generated edgelist:
-
-//     for(int i=0;i<numEdges;i++){
-//         printedge(edgeList[i]);
-//         }
-
-//     //Check the chosen function:
-//     Func_check func = Traveling_func;
-//     char start_vertices=edgeList[0][0];
-//     char end_vertices='a';
-//     //     cout << end_vertices << endl;
-//     int BFValue[50];
-//     int BFPrev[50];
-//     numVertices = countVertices(edgeList, numEdges);
-//     cout << "lll\n";
-// //     for (int i = 0; i < numVertices; ++i) {
-// //         BFValue[i] = -1;
-// //         BFPrev[i] = -1;
-// //     }
-
-//     vector<char> list =  getVectorOfVertices(edgeList,numEdges);
-
-//     switch(func){
-//         case BF_func:
-//             for (int i = 0; i < numVertices; ++i) {
-//                 cout << "\tSTEP " << i + 1 << endl;
-//                 BF(edgeList,numEdges,start_vertices,BFValue,BFPrev);
-//                 cout << "VALUES\n";
-//                 for (int i = 0; i < numVertices; ++i) {
-//                     cout << list[i] << ":" << BFValue[i] << " ";
-//                 }
-//                 cout << "\nPREVIOUS\n";
-//                 for (int i = 0; i < numVertices; ++i) {
-//                     cout << BFPrev[i] << " ";
-//                 }
-//                 cout << endl;
-//             }
-            
-//             break;
-
-//         case BF_Path_func:
-//             BF_Path(edgeList,numEdges,start_vertices,end_vertices);
-//             break;
-//         case Traveling_func:
-//             cout << "hello\n";
-//             cout << Traveling(edgeList,numEdges,start_vertices);
-//             break;
-//         default: cout<<"no such case";
-//     }
-//     return 0;
-// }
-
-// int main() {
-// int edgeList[70][3] ;
-
-//     int numEdges=70;
-//         ifstream fin("Input10A.txt");
-//         for(int i=0;i<numEdges;i++){
-//             fin>>edgeList[i][0]>>edgeList[i][1]>>edgeList[i][2];
-//         }
-//         fin.close();
-//             char start_vertices;
-//             char end_vertices;
-// char startlist[]="?b";
-// char endlist[]="5]";
-//         // for (int i = 0; i < 70; ++i) {
-//         //     printedge(edgeList[i]);
-//         // }
-//         // vector<char> list = getVectorOfVertices(edgeList,numEdges);
-//         // for (int i = 0; i < 10; ++i) {
-//         //     cout << list[i] << " ";
-//         // }
-//         // cout << endl;
-//             for(int i=0;i<2;i++){
-//                     start_vertices=startlist[i];
-//                     end_vertices=endlist[i];
-//                     string out;
-//                     cout<<"###"<<char(start_vertices)<<"##"<<char(end_vertices)<<"###"<<endl;
-//                     out=BF_Path(edgeList,numEdges,start_vertices,end_vertices);
-//                     cout<<out<<endl;
-//                 }
-// }
-
-// int main() {
-//     int edgeList[70][3] ;
-//     int numEdges=70;
-//     int Esize=10;
-
-//         ifstream fin("Input10A.txt");
-//         for(int i=0;i<numEdges;i++){
-//             fin>>edgeList[i][0]>>edgeList[i][1]>>edgeList[i][2];
-//         }
-//         fin.close();
-//             char start_vertices;
-// char namelist[]="?b";
-//         // vector<vector<int>> ad = getAdjacencyMatrix(edgeList, numEdges);
-//         // {
-//         //     for (int i = 0; i < 10; ++i) {
-//         //         for (int j = 0; j < 10; ++j) {
-//         //             cout << ad[i][j] << " ";
-//         //         }
-//         //         cout << endl;
-//         //     }
-//         // }
-//         // for (int i = 0; i < 70; ++i) {
-//         //     printedge(edgeList[i]);
-//         // }
-//         for(int i=0;i<2;i++){
-//             start_vertices=namelist[i];
-//             int BFValue[Esize];
-//             int BFPrev[Esize];
-//             for(int k=0;k<Esize;k++){
-//                 BFValue[k]=-1;
-//                 BFPrev[k]=-1;
-//             }
-//             cout<<"#####"<<endl;
-//             for(int j=0;j<2;j++){
-//                 cout<<"step:"<<j+1<<endl;
-//                 BF(edgeList,numEdges,start_vertices,BFValue,BFPrev);
-//                 for(int k=0;k<Esize;k++){
-//                     cout<<BFValue[k]<<" ";
-//                 }
-//                 cout<<endl;
-//                 for(int k=0;k<Esize;k++){
-//                     cout<<BFPrev[k]<<" ";
-//                 }
-//                 cout<<endl;
-//             }
-//         }
-// }
-
 int main() {
-    int graph[500][3];
-    int num_edges = 500;
-    ifstream ifs("kk.txt");
+    int graph[32][3];
+    int num_edges = 32;
+    ifstream ifs("Input.txt");
     for (int i  = 0; i < num_edges; ++i) {
         ifs >> graph[i][0] >> graph[i][1] >> graph[i][2];
     }
-    for (int i  = 0; i < num_edges; ++i) {
-        printedge(graph[i]);
+    int BFValue[20];
+    int BFPrev[20];
+    vector<char> list_of_vertices = getListVertices(graph, num_edges);
+    int numVertices = list_of_vertices.size();
+
+    for(int i = 0; i < numVertices; i++){
+        BFValue[i] = -1;
+        BFPrev[i] = -1;
     }
-    for (int i = 0 ; i < num_edges; ++i) {
-        cout << graph[i][0] << " " << graph[i][1] << " " << graph[i][2] << endl;
-    }
-    int numVertices = countVertices(graph, num_edges);
-    cout << countVertices(graph, num_edges) << endl;
-    vector<char> list = getVectorOfVertices(graph,num_edges);
-    for (int i = 0 ; i < numVertices; ++i) {
-        cout << list[i] << " ";
-    }
-    cout << endl;
-    vector<vector<int>> ad = getAdjacencyMatrix(graph,num_edges);
-    for (int i  = 0; i < numVertices; ++i) {
-        for (int j = 0;j < numVertices; ++j) {
-            cout << ad[i][j] << " ";
+
+    for(int i = 0; i < numVertices; i++){
+        BF(graph, num_edges, 'A', BFValue, BFPrev);
+        cout << "Step " << i + 1 << ": " << endl;
+        for(int j = 0; j < numVertices; j++){
+            cout << BFValue[j] << " ";
+        }
+        cout << endl;
+        for(int j = 0; j < numVertices; j++){
+            cout << BFPrev[j] << " ";
         }
         cout << endl;
     }
-    char start = graph[0][0];
-    
-    cout << Traveling(graph,num_edges, start);
-}
 
+    cout << BF_Path(graph, num_edges, 'A', 'E') << endl;
+
+    cout << Traveling(graph,num_edges, 'A');
+}
 
 
 

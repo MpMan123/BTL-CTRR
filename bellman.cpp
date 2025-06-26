@@ -1,37 +1,6 @@
 #include "bellman.h"
 
-void sort(vector<char>& vectorOfVertices) {
-    int size = vectorOfVertices.size();
-    for (int i = 0; i < size; ++i) {
-        for (int j = 0; j < size - i - 1; ++j) {
-            if (vectorOfVertices[j] > vectorOfVertices[j + 1]) {
-                char tmp = vectorOfVertices[j];
-                vectorOfVertices[j] = vectorOfVertices[j + 1];
-                vectorOfVertices[j + 1] = tmp;
-            }
-        }
-    }
-}
-
-int countVertices(int graph[][3], int num_edges) {
-    int exist[256] = {0};
-    for (int i = 0; i < num_edges; ++i) {
-        if (exist[graph[i][0]] == 0) {
-            ++exist[graph[i][0]];
-        }
-        if (exist[graph[i][1]] == 0) {
-            ++exist[graph[i][1]];
-        }
-    }
-    int sum = 0;
-    for (int i = 0; i < 256; ++i) {
-        sum += exist[i];
-    }
-    return sum;
-}
-
-vector<char> getVectorOfVertices(int graph[][3], int num_edges) {
-    int num_of_vertices = countVertices(graph, num_edges);
+vector<char> getListVertices(int graph[][3], int num_edges) {
     vector<char> list;
 
     int index = 0;
@@ -46,19 +15,10 @@ vector<char> getVectorOfVertices(int graph[][3], int num_edges) {
             list.push_back((char)graph[i][1]);
         }
     }
-    sort(list);
+    sort(list.begin(), list.end());
     return list;
 }
 
-int findIndexInVector(vector<char> list, char vertex) {
-    int size = list.size();
-    for (int i = 0; i < size; ++i) {
-        if (vertex == list[i]) {
-            return i;
-        }
-    }
-    return -1;
-}
 
 int* CopyArray(int a[], int num_of_vertices) {
     int* result = new int[num_of_vertices];
@@ -69,29 +29,47 @@ int* CopyArray(int a[], int num_of_vertices) {
 }
 
 vector<vector<int>> getAdjacencyMatrix(int graph[][3], int num_edges) {
-    int num_of_vertices = countVertices(graph, num_edges);
+    vector<char> list_of_vertices = getListVertices(graph, num_edges);
+    int num_of_vertices = list_of_vertices.size();
     vector<vector<int>> matrix(num_of_vertices, vector<int>(num_of_vertices, -1));
-    
-    vector<char> list_of_vertices = getVectorOfVertices(graph, num_edges);
+
+    int charToIndex[256];
+    for (int i = 0; i < 256; ++i) {
+        charToIndex[i] = -1;
+    }
+    for (int i = 0; i < num_of_vertices; ++i) {
+        charToIndex[list_of_vertices[i]] = i;
+    }
 
     for (int i = 0; i < num_edges; ++i) {
-        if (i < num_of_vertices) matrix[i][i] = 0;
-        int u = findIndexInVector(list_of_vertices, graph[i][0]);
-        int v = findIndexInVector(list_of_vertices, graph[i][1]);
+        int u = charToIndex[graph[i][0]];
+        int v = charToIndex[graph[i][1]];
         if (u >= 0 && v >= 0) {
             // Ensure that if the graph is a multigraph, only the edge with the smallest weight is kept
             if (matrix[u][v] == -1 || matrix[u][v] > graph[i][2])
                 matrix[u][v] = graph[i][2];
         }
     }
+    for (int i = 0; i < num_of_vertices; ++i) {
+        matrix[i][i] = 0;
+    }
     return matrix;
 }
 
 void BF(int graph[][3], int num_edges, char start, int value_array[], int previous_array[]) {
-    int num_of_vertices = countVertices(graph, num_edges);
-    vector<char> list_of_vertices = getVectorOfVertices(graph, num_edges);
+    vector<char> list_of_vertices = getListVertices(graph, num_edges);
+    int num_of_vertices = list_of_vertices.size();
     vector<vector<int>> adjacencyMatrix = getAdjacencyMatrix(graph,num_edges);
-    int start_index = findIndexInVector(list_of_vertices, start);
+
+    int charToIndex[256];
+    for (int i = 0; i < 256; ++i) {
+        charToIndex[i] = -1;
+    }
+    for (int i = 0; i < num_of_vertices; ++i) {
+        charToIndex[list_of_vertices[i]] = i;
+    }
+
+    int start_index = charToIndex[start];
     // Initialize the weight of the starting node to 0
     value_array[start_index] = 0; 
 
@@ -100,11 +78,13 @@ void BF(int graph[][3], int num_edges, char start, int value_array[], int previo
 
     
     for (int i = 0; i < num_of_vertices; ++i) {
+        
         if (tmp_value[i] == -1) continue;
         for (int j = 0; j < num_of_vertices; ++j) {
             if (adjacencyMatrix[i][j] <= 0) continue;
 
             int dis = tmp_value[i] + adjacencyMatrix[i][j];
+
             if (dis < value_array[j] || value_array[j] == -1) {
                 value_array[j] = dis;
                 previous_array[j] = i;
@@ -131,9 +111,18 @@ string BF_Path(int graph[][3], int num_edges, char start, char goal) {
         return "";
     }
     
-    int num_of_vertices = countVertices(graph, num_edges);
+    vector<char> list_of_vertices = getListVertices(graph, num_edges);
+    int num_of_vertices = list_of_vertices.size();
     int* value_array = new int[num_of_vertices];
     int* previous_array = new int[num_of_vertices];
+
+    int charToIndex[256];
+    for (int i = 0; i < 256; ++i) {
+        charToIndex[i] = -1;
+    }
+    for (int i = 0; i < num_of_vertices; ++i) {
+        charToIndex[list_of_vertices[i]] = i;
+    }
 
     for (int i = 0; i < num_of_vertices; ++i) {
         value_array[i] = -1;
@@ -145,13 +134,13 @@ string BF_Path(int graph[][3], int num_edges, char start, char goal) {
     }
 
 
-    vector<char> list = getVectorOfVertices(graph, num_edges);
+    vector<char> list = getListVertices(graph, num_edges);
     string result = "";
     char tmp = goal;
     int pre_vertice_index;
     do {
         result = result + tmp;
-        pre_vertice_index = previous_array[findIndexInVector(list, tmp)];
+        pre_vertice_index = previous_array[charToIndex[tmp]];
         if (pre_vertice_index != -1) {
             tmp = list[pre_vertice_index];
             result += ' ';
