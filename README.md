@@ -10,7 +10,7 @@
 |**Email**| mhp230306@gmail.com|
 
 ---
-##📚  Overview
+## 📚  Overview
 This repository is part of my study on 3 algorithms to solve the Traveling Salesman Problem, Finding The Shortest Path and generate the `DiscreteStructure_ReportOnTSM.pdf`
 
 Algorithms implemented:
